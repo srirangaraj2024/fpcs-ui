@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import EmployeeServices from '../services/EmployeeServices';
 
 class ListEmpComponent extends Component {
     constructor(props){
@@ -7,11 +8,15 @@ class ListEmpComponent extends Component {
             employees:[]
         }
     }
+    componentDidMount(){
+        EmployeeServices.getEmployees().then((res)=>
+        {this.setState({employees:res.data})});
+    }
     render() {
         return (
             
             <div>
-                 <h2 className="text-center">Employees List</h2>
+                 <h2 className="text-center">Leaves List</h2>
                  <div className = "row">
                     <button className="btn btn-primary" onClick={this.addEmployee}> Add Employee</button>
                  </div>
@@ -21,20 +26,20 @@ class ListEmpComponent extends Component {
 
                             <thead>
                                 <tr>
-                                    <th> Employee First Name</th>
-                                    <th> Employee Last Name</th>
-                                    <th> Employee Email Id</th>
-                                    <th> Actions</th>
+                                    <th> UserID</th>
+                                    <th> FromDate</th>
+                                    <th> ToDate</th>
+                                    <th> days </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {
                                     this.state.employees.map(
                                         employee => 
-                                        <tr key = {employee.id}>
-                                             <td> { employee.firstName} </td>   
-                                             <td> {employee.lastName}</td>
-                                             <td> {employee.emailId}</td>
+                                        <tr key = {employee.userId}>
+                                             <td> { employee.fromDate} </td>   
+                                             <td> {employee.toDate}</td>
+                                             <td> {employee.days}</td>
                                              <td>
                                                  <button onClick={ () => this.editEmployee(employee.id)} className="btn btn-info">Update </button>
                                                  <button style={{marginLeft: "10px"}} onClick={ () => this.deleteEmployee(employee.id)} className="btn btn-danger">Delete </button>
