@@ -36,7 +36,8 @@ class ListEmpComponent extends Component {
                                 {
                                     this.state.employees.map(
                                         employee => 
-                                        <tr key = {employee.userId}>
+                                        <tr key = {employee.id}>
+                                            <td> { employee.userId} </td>
                                              <td> { employee.fromDate} </td>   
                                              <td> {employee.toDate}</td>
                                              <td> {employee.days}</td>
