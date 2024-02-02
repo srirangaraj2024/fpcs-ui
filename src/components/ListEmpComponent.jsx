@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import EmployeeServices from '../services/EmployeeServices';
+import { Link } from 'react-router-dom';
+
+
 
 class ListEmpComponent extends Component {
     constructor(props){
@@ -7,18 +10,22 @@ class ListEmpComponent extends Component {
         this.state={
             employees:[]
         }
+        //this.claimAdvance = this.claimAdvance.bind(this);
+        
     }
     componentDidMount(){
         EmployeeServices.getEmployees().then((res)=>
         {this.setState({employees:res.data})});
     }
+    
     render() {
         return (
             
             <div>
                  <h2 className="text-center">Leaves List</h2>
-                 <div className = "row">
-                    <button className="btn btn-primary" onClick={this.addEmployee}> Add Employee</button>
+                 <div>
+                    <button  >
+                    <Link to={`/claim-advance`}>ClaimAdvance</Link></button>
                  </div>
                  <br></br>
                  <div className = "row">
@@ -26,10 +33,10 @@ class ListEmpComponent extends Component {
 
                             <thead>
                                 <tr>
-                                    <th> UserID</th>
-                                    <th> FromDate</th>
-                                    <th> ToDate</th>
-                                    <th> days </th>
+                                    <th> employeeId</th>
+                                    <th> officialMailId</th>
+                                    <th> personalMailId</th>
+                                    <th> mobileNumber </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,10 +44,10 @@ class ListEmpComponent extends Component {
                                     this.state.employees.map(
                                         employee => 
                                         <tr key = {employee.id}>
-                                            <td> { employee.userId} </td>
-                                             <td> { employee.fromDate} </td>   
-                                             <td> {employee.toDate}</td>
-                                             <td> {employee.days}</td>
+                                            <td> { employee.employeeId} </td>
+                                             <td> { employee.officialMailId} </td>   
+                                             <td> {employee.personalMailId}</td>
+                                             <td> {employee.mobileNumber}</td>
                                              <td>
                                                  <button onClick={ () => this.editEmployee(employee.id)} className="btn btn-info">Update </button>
                                                  <button style={{marginLeft: "10px"}} onClick={ () => this.deleteEmployee(employee.id)} className="btn btn-danger">Delete </button>

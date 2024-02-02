@@ -1,28 +1,21 @@
 import axios from 'axios';
 
-const EMPLOYEE_API_BASE_URL = "http://fpcsdemo.ap-south-1.elasticbeanstalk.com/fpcs/leaves/userLeavesList?userId=abc123";
-
+//const EMPLOYEE_API_BASE_URL = "http://fpcsdemo.ap-south-1.elasticbeanstalk.com/fpcs/leaves/userLeavesList?userId=abc123";
+const EMPLOYEE_API_BASE_URL = "http://localhost:5000/fpcs/employee/getEmpList";
+const CLAIM_API_BASE_URL = "http://localhost:5000/fpcs/claims/preClaimFund";
 class EmployeeService {
 
     getEmployees(){
         return axios.get(EMPLOYEE_API_BASE_URL);
     }
 
-    createEmployee(employee){
-        return axios.post(EMPLOYEE_API_BASE_URL, employee);
+    addClaimAdvance(claimAdvance){
+        alert("emp data "+claimAdvance.employeeId)
+        //return axios.post(CLAIM_API_BASE_URL, claimAdvances);
+        return axios.post(CLAIM_API_BASE_URL, claimAdvance);
     }
 
-    getEmployeeById(employeeId){
-        return axios.get(EMPLOYEE_API_BASE_URL + '/' + employeeId);
-    }
-
-    updateEmployee(employee, employeeId){
-        return axios.put(EMPLOYEE_API_BASE_URL + '/' + employeeId, employee);
-    }
-
-    deleteEmployee(employeeId){
-        return axios.delete(EMPLOYEE_API_BASE_URL + '/' + employeeId);
-    }
+    
 }
 
 export default new EmployeeService()
