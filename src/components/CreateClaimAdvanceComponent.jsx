@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import EmployeeServices from '../services/EmployeeServices';
+import {useNavigate} from 'react-router-dom';
 
 class CreateClaimAdvanceComponent extends Component {
     constructor(props) {
@@ -24,7 +25,7 @@ class CreateClaimAdvanceComponent extends Component {
         // step 5
         
             EmployeeServices.addClaimAdvance(claimAdvance).then(res =>{
-              //  this.props.history.push('/employees');
+                useNavigate('/employees');
               
             });
         
@@ -44,16 +45,20 @@ class CreateClaimAdvanceComponent extends Component {
             <div>
                 <br></br>
                    <div className = "container">
-                        <div className = "row">
-                            <div className = "card col-md-6 offset-md-3 offset-md-3">
+                        <div className = "row"><form>
+                            <table className = "table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                            
                                 Claim Advance
-                                <div className = "card-body">
-                                    <form>
+                               </tr>
+                                   <tr> <td>
                                         <div className = "form-group">
                                             <label> Employee ID: </label>
                                             <input placeholder="Employee Id" name="employeeId" className="form-control" 
                                                 value={this.state.employeeId} onChange={this.changeEmployeeIdAmountHandler}/>
                                         </div>
+                                        </td><td>
                                         <div className = "form-group">
                                             <label> Claim Advance: </label>
                                             <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
@@ -61,12 +66,82 @@ class CreateClaimAdvanceComponent extends Component {
                                         </div>
                                         <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
                                         <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
-                                    </form>
-                                </div>
-                            </div>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        <td>
+                                        <div className = "form-group">
+                                            <label> Claim Advance: </label>
+                                            <input placeholder="Claim Advance" name="availedAmount" className="form-control" 
+                                                value={this.state.availedAmount} onChange={this.changeAvailedAmountHandler}/>
+                                        </div>
+                                        <button className="btn btn-success" onClick={this.saveOrUpdateClaim}>Save</button>
+                                        <button className="btn btn-danger" onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
+                                        </td>
+                                        
+                                        </tr>
+                                                          
+                           
+                           
+                            </thead>
+                            </table>
+                            </form>
                         </div>
 
                    </div>
+                   
             </div>
         );
     }
