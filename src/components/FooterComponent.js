@@ -5,14 +5,14 @@ class FooterComponent extends Component {
         super(props)
 
         this.state = {
-                 
+
         }
     }
 
     render() {
         return (
             <div>
-                <footer className = "footer">
+                <footer className="footer">
                     <span className="text-muted">All Rights Reserved 2023 @SRR</span>
                 </footer>
             </div>

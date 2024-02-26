@@ -1,30 +1,47 @@
-
-import React from 'react';
 import './App.css';
-import {BrowserRouter as Router, Route,  Routes} from 'react-router-dom';
-import ListEmpComponent from './components/ListEmpComponent';
-import HeaderComponent from './components/HeaderComponent';
+import { NavigationComponent} from './pages/NavigationComponent';
+import {Admin} from './pages/Admin';
+import {LoginComponent} from './pages/LoginComponent';
+import { EmployeeManagement } from './pages/EmployeeManagement';
+import { LeaveManagement } from './pages/LeaveManagement';
+import { Hr } from './pages/Hr';
+import { Claims } from './pages/Claims';
 import FooterComponent from './components/FooterComponent';
-
-import CreateClaimAdvanceComponent from './components/CreateClaimAdvanceComponent';
+import {BrowserRouter, Route, Routes, useLocation} from 'react-router-dom';
+import { AuthProvider } from './components/Auth';
+import {Sidebar} from './components/Sidebar'
 
 function App() {
+  const location = useLocation();
   return (
-    <div>
-    <Router>
-     
-          <HeaderComponent />
-        <div className="container"> 
-        <Routes>
-        <Route exact path = "/"  element = {<ListEmpComponent/>}></Route>
-        <Route exact path = "/employees" element = {<ListEmpComponent/>}></Route>
-         <Route exact path = "/claim-advance"  element = {<CreateClaimAdvanceComponent/>}></Route>
-       </Routes> 
-        </div> 
-      <FooterComponent />
-       
-    </Router>
-    </div>
+    <AuthProvider>
+      <div className='App'>
+        <header>
+          <NavigationComponent></NavigationComponent>
+        </header>
+        <div className='container'>
+          {
+            location.pathname === '/' ? null : <Sidebar/>
+          }
+          <main>
+            <Routes>
+              <Route path='/' element={<LoginComponent />} />
+              <Route path='/claims' element={<Claims />} />
+              <Route path='/login' element={<LoginComponent />} />
+              <Route path='/employeeManagement' element={<EmployeeManagement />} />
+              <Route path='/hr' element={<Hr />} />
+              <Route path='/leaveManagement' element={<LeaveManagement />} />
+              <Route path='/admin' element={<Admin />} />
+            </Routes>
+          </main>
+
+        </div>
+        <footer>
+          <FooterComponent />
+        </footer>
+      </div>
+    </AuthProvider>
+   
   );
 }
 
