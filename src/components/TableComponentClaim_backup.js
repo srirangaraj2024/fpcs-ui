@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios';
 import { element } from 'prop-types';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
@@ -7,40 +6,31 @@ import PageNation from './PageNation';
 import TableUtil from './TableUtils';
 import ClaimServices from '../services/ClaimServices';
 import { emptyClaims } from '../data/ClaimsData';
-import { clientList } from '../data/ClaimsData';
 import '../styles/Table.css'
-import { useAuth } from './Auth';
 
 
 export default function TableComponentClaim({ data, rowPerPage }) {
     const [date, setDate] = useState(new Date());
     const [page, setPage] = useState(1);
-     const [clientData, setClientData] = useState([]);
-    //const [clientData, setClientData] = useState([...clientList]);
+    const [clientData, setClientData] = useState([]);
     const [claims, setClaims] = useState([]);
     const [claimAttachment, setClaimAttachment] = useState([]);
     const { slice, range } = TableUtil(claims, page, rowPerPage);
     const [selectedClaims, setSelectedClaims] = useState([]);
     const [isAllSeleted, setIsAllSeleted] = useState(false);
-    const [file, setFile] = useState("");
+    const [file, setFile] = useState();
     const [selectedClaimRecords, setSelectedClaimRecords] = useState([...emptyClaims]);
-    const [isFixedExpenses, setIsFixedExpenses] = useState(true);
     //const clientList = clientData;
     const claimTypes = data.claimType;
     
-    const auth = useAuth();
-    const [emp, setEmp] = useState(auth.user);
 
     const selectAll = () => {
         setSelectedClaims([]);
-        setSelectedClaimRecords([]);
         if (!isAllSeleted) {
-            claims.forEach(element => {
-                if (!element.claimStatus.includes('Submit')){
-                    setSelectedClaims(prevSeletedClaims => [...prevSeletedClaims, element.id]);
-                    setSelectedClaimRecords(prevSelectedClaimRecords => [...prevSelectedClaimRecords, element])
-                }
+            claims.array.forEach(element => {
+                setSelectedClaims(prevSeletedClaims => [...prevSeletedClaims, element.name]);
             });
+            setSelectedClaimRecords([...claims]);
         }
         else {
             setSelectedClaimRecords([...emptyClaims]);
@@ -49,58 +39,33 @@ export default function TableComponentClaim({ data, rowPerPage }) {
     }
 
     const handleClaimSelect = (claim) => {
-        if(!claim.claimStatus.includes('Submit')){
-            if (selectedClaims.includes(claim.id)) {
-                setSelectedClaims(preSelectedClaims => preSelectedClaims.filter(id => id !== claim.id));
-                if (selectedClaims.length === 1) {
-                    setSelectedClaimRecords([...emptyClaims]);
-                } else {
-                    setSelectedClaimRecords(prevSelectedClaimRecords => prevSelectedClaimRecords.filter(
-                        preClaim => preClaim.id !== claim.id));
-                }
+        if (selectedClaims.includes(claim.name)) {
+            setSelectedClaims(preSelectedClaims => preSelectedClaims.filter(name => name !== claim.name));
+            setSelectedClaimRecords(prevSelectedClaimRecords => prevSelectedClaimRecords.filter(
+                preClaim => preClaim.name !== claim.name));
+        } else {
+            setSelectedClaims(preSelectedClaims => [...preSelectedClaims, claim.name]);
+            if (selectedClaimRecords.length === 1 && selectedClaimRecords[0].name === '') {
+                setSelectedClaimRecords([...claim]);
             } else {
-                setSelectedClaims(preSelectedClaims => [...preSelectedClaims, claim.id]);
-                if (selectedClaimRecords.length === 1 && selectedClaimRecords[0].id === '') {
-                    const editClaims = [];
-                    editClaims.push(claim);
-                    setSelectedClaimRecords([...editClaims]);
-                } else {
-                    setSelectedClaimRecords(prevSelectedClaimRecords => [...prevSelectedClaimRecords, claim]);
-                }
+                setSelectedClaimRecords(prevSelectedClaimRecords => [...prevSelectedClaimRecords, claim]);
             }
         }
         
     }
 
     const isCalimSelected = (claim) => {
-        return (selectedClaims.includes(claim.id) );
+        return selectedClaims.includes(claim.name);
     }
 
     const isAllCalimsSelected = () => {
-        return selectedClaims.length === claims.length;
+        return selectedClaims.lengh = claims.length;
     }
 
     const onChangeInput = (key, event) => {
         //alert(event.target);
         const { name, value } = event.target;
         //alert(key);
-        if (name ==='clientName'){
-            const findClientRec = clientData.find((cr) => cr.customerCode===value);
-            setIsFixedExpenses(findClientRec !== null && findClientRec.fixedExpenses !== 'NA');           
-        const emptyRec = emptyClaims;
-            emptyRec[0].fixedExpenses = findClientRec.fixedExpenses;
-           
-            setSelectedClaimRecords(emptyRec);
-        }
-        if (name ==='noOfDays'){
-            const findClientRec = clientData.find((cr) => cr.customerCode===value);
-            //setIsFixedExpenses(findClientRec !== null && findClientRec.fixedExpenses !== 'NA');           
-        const emptyRec = emptyClaims;
-           // emptyRec[0].fixedExpenses = findClientRec.fixedExpenses;
-            emptyRec[0].totalAmount = emptyRec[0].fixedExpenses * value;
-           
-            setSelectedClaimRecords(emptyRec);
-        }
         const tempRec = selectedClaimRecords[key];
         tempRec[name] = value;
         const updatedRec = [];
@@ -130,11 +95,6 @@ export default function TableComponentClaim({ data, rowPerPage }) {
 
     useEffect(() => {
         fetchCalims().then(() => {
-            const emptyRec = emptyClaims;
-            emptyRec[0].employeeName = emp.employeeId;
-            emptyRec[0].balanceAmount = emp.balanceAmount;
-            setSelectedClaimRecords(emptyRec);
-    
             
             console.log("claim data fetched successfully");
         });
@@ -142,13 +102,12 @@ export default function TableComponentClaim({ data, rowPerPage }) {
 
     const fetchCalims = async () => {
         try {
-                 const cliamResponse = await ClaimServices.getClaims(emp.employeeId);
+                 const cliamResponse = await ClaimServices.getClaims();
                  const data = await cliamResponse.json();
                  setClaims(data);
 
                  const clientresponse= await ClaimServices.getClientMaster();
                  const clientData= await clientresponse.json();
-                 clientData[0]="select";
                  setClientData(clientData);  
                    
             
@@ -178,8 +137,8 @@ export default function TableComponentClaim({ data, rowPerPage }) {
     };
     const addClaimRecord = async (claimRecord) => {
         try {
-            claimRecord.employeeId=emp.employeeId;
-            claimRecord.attachProof=file;
+            claimRecord.employeeId="emp123";
+      
             const response = await ClaimServices.createClaim(claimRecord);
             const data = await response.json();
             setClaims([...claims, data]);
@@ -188,43 +147,40 @@ export default function TableComponentClaim({ data, rowPerPage }) {
         }
 
     };
-const downloadFile=(fileLocation)=>{
-window.open(fileLocation);
-}
-
-
+    const uploadFileTo= async() =>{
+const formData = new FormData();
+  formData.append("myFile", file);
+  fetch('http://localhost:5000/fpcs/claims/uploadClaimProof',
+  {method:'POST',
+        body:formData
+    }).then((res)=>res.json())
+            .then((result)=>{console.log("result"+result)})
+                .catch((error)=>{
+                    console.log("errpr"+error)})
+            
+    }
 const uploadFile =async(index,e) => {
     try {
-        const attachment=e.target.files[0];
+   setFile(e.target.files[0])
+   console.log(e.target.files[0])
+         //const { name, value } = e.target;
+        //console.log(e);
+       // const response = await ClaimServices.uploadClaimAttachment(e.target.files[0]);
+       // const data = await response.json();
+       // const tempRec = selectedClaimRecords[index];
+       // tempRec[name] = data;
+        //const updatedRec = [];
+       // updatedRec.push(tempRec);
         
-      console.log(attachment)
-     const formData = new FormData();
-  formData.append("claimAttachment", attachment);
-  formData.append("employeeId",emp.employeeId)
- await axios.post('http://localhost:5000/fpcs/claims/uploadClaimProof',formData,
-  {   headers :{
-    method:"POST",
-    "Custom-header":"value",
-    "Content-Type": "multipart/form-data",
-    "Access-Control-Allow-Credentials": 'true',
-   " Access-Control-Allow" : "true"
-  } }).then(res => {
-            console.log(res.data);
-            setFile(res.data)
-            alert("File uploaded successfully.")
-    
-    }).catch((error)=>{
-                    console.log("errpr"+error)})
     } catch (error) {
         console.log("error adding claim:" + error);
     }
 }
-    const updateClaimRecord = async (selectedClaimRecords) => {
+    const updateClaimRecord = async (claimRecord) => {
         try {
-            const claimRecord = selectedClaimRecords[0];
-            const response = await ClaimServices.updateClaim(claimRecord, claimRecord.claimId);
+            const response = await ClaimServices.updateClaim(claimRecord, claimRecord.id);
             const updatedClaim = await response.json;
-            const updatedClaims = claims.map(claim => claim.claimId === updatedClaim.claimId ? updatedClaim : claim);
+            const updatedClaims = claims.map(claim => claim.id === updatedClaim.id ? updatedClaim : claim);
             setClaims(updatedClaims);
             setSelectedClaimRecords([...emptyClaims]);
         } catch (error) {
@@ -272,7 +228,6 @@ const uploadFile =async(index,e) => {
                         <th className='tableHeader'>Comments</th>
                      
                         <th className='tableHeader'>Attachments</th>
-                        
                        
                     </tr>
                 </thead>
@@ -287,184 +242,158 @@ const uploadFile =async(index,e) => {
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder=''
                                         type='text'
-                                        style={{ width: "50px"}}
                                        
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "150px" }}>
                                     <input
                                         name='claimDate'
                                         value={claimRec.claimDate}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder='enter Date'
                                         type='text'
-                                        style={{width: "120px"}}                                        
+                                        
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "250px" }}>
                                     <input
-                                        name='employeeName'
-                                        value={claimRec.employeeName}
+                                        name='name'
+                                        value={claimRec.name}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder=''
                                         type='text'
-                                        style={{ width: "150px" }}
-                                        disabled='true'
+                                        
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "350px" }}>
                                     <select
                                         value={claimRec.claimType}
                                         name='claimType'
                                         
                                         onChange={(e) => onChangeInput(index,e)}
-                                        style={{ width: "100px" }}
                                         >
                                         {claimTypes.map(claimType =>
                                             <option value={claimType}>{claimType}</option>
                                         )};
                                     </select>
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "200px" }}>
                                     <select
                                         value={claimRec.clientName}
                                         name='clientName'
                                         onChange={(e) => onChangeInput(index,e)}
-                                        style={{ width: "100px" }}>
-                                            
+                                        >
                                         {clientData.map(clientType =>
                                             <option value={clientType.customerCode}>{clientType.customerCode}</option>
                                         )};
                                     </select>
                                 </td>
-                                <td className='tableCell'>
-                                    <input
-                                        name='fromDate'
-                                        value={claimRec.fromDate}
-                                        onChange={(e) => onChangeInput(index, e)}
-                                        placeholder='Enter date'
-                                        type='date'
-                                        style={{ width: "150px" }}
-                                    />
+                                <td style={{ width: "200px" }}>
+                                    <DatePicker selected={date} name='fromDate' value={claimRec.fromDate} onChange={(e) => onChangeInput(index,e)} />
                                 </td>
-                                <td className='tableCell'>
-                                    <input
-                                        name='toDate'
-                                        value={claimRec.toDate}
-                                        onChange={(e) => onChangeInput(index, e)}
-                                        placeholder='Enter date'
-                                        type='date'
-                                        style={{ width: "150px" }}
-                                    />
+                                <td style={{ width: "200px" }}>
+                                    <DatePicker selected={date} name='toDate' value={claimRec.toDate} onChange={(e) => onChangeInput(index,e)} />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "200px" }}>
                                     <input
                                         name='fromPlace'
                                         value={claimRec.fromPlace}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder='Enter Place'
                                         type='text'
-                                        style={{ width: "150px" }}
+                                      
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <input 
                                         name='toPlace'
                                         value={claimRec.toPlace}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder='Enter place'
                                         type='text'
-                                        style={{ width: "150px" }}
+                                    
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <input
                                         name='fixedExpenses'
                                         value={claimRec.fixedExpenses}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder=''
                                         type='text'
-                                        disabled={!isFixedExpenses}
-                                        style={{ width: "100px" }}
+                                        disabled='true'
+                                        
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <input
                                         name='noOfDays'
                                         value={claimRec.noOfDays}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder='Enter Days'
                                         type='text'
-                                        style={{ width: "50px" }}
-                                        disabled={!isFixedExpenses}
+                                       
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <input
                                         name='totalAmount'
                                         value={claimRec.totalAmount}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder=''
                                         type='text'
-                                        style={{ width: "100px" }}
-                                        disabled='true'
+                                       
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <input
                                         name='variableExpenses'
                                         value={claimRec.variableExpenses}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder='Enter Amount'
                                         type='text'
-                                        style={{ width: "100px" }}
-                                        disabled={isFixedExpenses}
+                                       
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <select
                                         name='isBillable'
                                         value={claimRec.isBillable}
                                         onChange={(e) => onChangeInput(index,e)}
-                                        style={{ width: "100px" }}>
+                                      >
                                         <option value='Yes'>Yes</option>
                                         <option value='No'>No</option>
                                     </select>
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "100px" }}>
                                     <input
                                         name='balanceAmount'
                                         value={claimRec.balanceAmount}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder=''
                                         type='text'
-                                        style={{ width: "150px" }}
-                                        disabled='true'
+                                      
                                     />
                                 </td>
-                                <td className='tableCell'>
-                                    <textarea
+                                <td style={{ width: "100px" }}>
+                                    <input
                                         name='claimComments'
                                         value={claimRec.claimComments}
                                         onChange={(e) => onChangeInput(index,e)}
                                         placeholder='Enter comments'
                                         type='false'
-                                        style={{ width: "250px" }}
-                                        maxLength="2500"
-                                        rows='3'
                                     />
                                 </td>
-                                <td className='tableCell'>
+                                <td style={{ width: "50px" }}>
                                     <input
                                         name='attachProof'
                                        // value={claimRec.attachProof}
                                         onChange={(e) => uploadFile(index,e)}
                                         placeholder=''
                                         type='file'
-                                        style={{ width: "200px" }}
-                                        disabled={isFixedExpenses}
+                                        
                                     />
-                                   
+                                    <button onClick={uploadFileTo}>upload</button>
                                 </td>
                                 
                             </tr>
@@ -478,7 +407,7 @@ const uploadFile =async(index,e) => {
                 <thead className='tableRowHeader'>
                     <tr>
                         <th className='tableHeader'>
-                            <input type='checkbox' checked={isAllCalimsSelected} onChange={selectAll} />
+                            <input type='checkbox' checked={isAllSeleted} onChange={selectAll} />
                         </th>
                         <th className='tableHeader'>Claim No#</th>
                         <th className='tableHeader'>Date of Claim</th>
@@ -492,13 +421,14 @@ const uploadFile =async(index,e) => {
                         <th className='tableHeader'>Fixed Expn</th>
                         <th className='tableHeader'>No. days</th>
                         <th className='tableHeader'>Total Amount</th>
+
                         <th className='tableHeader'>Variable Amount</th>
                         <th className='tableHeader'>Billable</th>
                         <th className='tableHeader'>Balance Amount</th>
                         <th className='tableHeader'>Comments</th>
                         <th className='tableHeader'>claimStatus</th>
                         <th className='tableHeader'>Attachments</th>
-                        <th className='tableHeader'>Update</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -509,12 +439,11 @@ const uploadFile =async(index,e) => {
                                     type='checkbox'
                                     checked={isCalimSelected(claim)}
                                     onChange={() => handleClaimSelect(claim)}
-                                    disabled={claim.claimStatus.includes('Submit')}
                                 />
                             </td>
                             <td className='tableCell'>{claim.claimId}</td>
                             <td className='tableCell'>{claim.claimDate}</td>
-                            <td className='tableCell'>{claim.employeeId}</td>
+                            <td className='tableCell'>{claim.name}</td>
                             <td className='tableCell'>{claim.claimType}</td>
                             <td className='tableCell'>{claim.clientName}</td>
                             <td className='tableCell'>{claim.fromDate}</td>
@@ -529,13 +458,8 @@ const uploadFile =async(index,e) => {
                             <td className='tableCell'>{claim.balanceAmount}</td>
                             <td className='tableCell'>{claim.claimComments}</td>
                             <td className='tableCell'>{claim.claimStatus}</td>
-                            <td className='tableCell'>
-                                                      
-                                                     
-       <button onClick={()=>downloadFile(claim.attachProof)}>Download</button>
-    
-                            </td>
-                            <td><input className='right' type='submit' value="Edit" onClick={deleteClaimRecord}></input></td>
+                            <td className='tableCell'>{claim.attachProof}</td>
+                            
                         </tr>
                     ))}
                 </tbody>

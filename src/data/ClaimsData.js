@@ -2,7 +2,7 @@ export const data = [
     {
         id: '03',
         employeeId:'',
-    name: 'Dan Doe',
+        employeeName: 'Dan Doe',
     dateOfClaim: '15/02/2024',
     claimType: 'Transport',
     clientName: 'abc',
@@ -28,7 +28,7 @@ export const data = [
     {
         id: '02',
         employeeId:'',
-    name: 'John Doe',
+        employeeName: 'John Doe',
     dateOfClaim: '15/02/2024',
     claimType: 'Transport',
     clientName: 'abc',
@@ -53,7 +53,7 @@ export const data = [
     },
     {id: '01',
     employeeId:'',
-    name: 'John Doe',
+    employeeName: 'John Doe',
     dateOfClaim: '15/02/2024',
     claimType: 'Transport',
     clientName: 'xyz',
@@ -81,7 +81,7 @@ export const data = [
 export const emptyClaims = [{
     id: '',
     employeeId:'',
-    name: '',
+    employeeName: '',
     claimDate: '15/02/2024',
     claimType: '',
     clientName: '',
@@ -105,7 +105,7 @@ export const emptyClaims = [{
     balance: '',
     action: ''
 }];
-export const claimTypeList = ['boarding','Transport'];
+export const claimTypeList = ['Select','Boarding','Transport'];
 export const actionList = ['Approved','Reject','Hold'];
 export const clientList = [
 {

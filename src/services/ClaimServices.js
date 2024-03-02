@@ -1,17 +1,25 @@
 import axios from "axios";
-const LOCAL_URL="http://localhost:5000";
 const DEV_URL="http://fpcsdev.ap-southeast-1.elasticbeanstalk.com";
-const CLAIM_API_BASE_URL = DEV_URL+"/fpcs/claims/getSavedClaims?employeeId=emp123";
-const CLEINT_API_URL=DEV_URL+"/fpcs/claims/getClientMasterData";
+const CLAIM_API_BASE_URL = DEV_URL+"/fpcs/claims/getSavedClaims";
+const CLEINT_API_URL=DEV_URL+"/fpcs/masterdata/getClientMasterData";
 const SAVE_CLAIM_URL=DEV_URL+"/fpcs/claims/saveClaimRequest";
-//const SAVE_CLAIM_URL="http://localhost:5000/fpcs/claims/saveClaimRequest"
-const SAVE_CLAIM_ATTACHMENT_URL=DEV_URL+"/fpcs/claims/uploadClaimProof"
+const APROVER_CLAIM_URL=DEV_URL+"/fpcs/claims/getApproverClaims";
+const SUBMIT_CLAIM_URL=DEV_URL+"/fpcs/claims/submitClaimRequest"
+const SAVE_CLAIM_ATTACHMENT_URL=DEV_URL+"/fpcs/claims/uploadClaimProof";
+const DELETE_CLAIM_URL = DEV_URL + "/fpcs/claims/deleteClaimRequest"
+//const SUBMIT_CLAIM_URL = DEV_URL + "/fpcs/claims/submitClaimRequest"
 class ClaimServices{
   
   getClaims(userName) {
- //   return fetch(CLAIM_API_BASE_URL+"?employeeId="+userName);
-    return fetch(CLAIM_API_BASE_URL);
+    return fetch(CLAIM_API_BASE_URL+"?employeeId="+userName);
+    //return fetch(CLAIM_API_BASE_URL);
   }
+
+  getApproverClaims(userName) {
+    return fetch(APROVER_CLAIM_URL+"?employeeId="+userName);
+    //return fetch(CLAIM_API_BASE_URL);
+  }
+
   getClientMaster(){
     return fetch(CLEINT_API_URL);
   }
@@ -48,10 +56,14 @@ return axios.post(SAVE_CLAIM_ATTACHMENT_URL, formData);
     return axios.get(CLAIM_API_BASE_URL+'/'+claimId);
   }
 
-  deleteClaim(claimId){
-    return axios.delete(CLAIM_API_BASE_URL+'/'+claimId);
+  deleteClaims(claims){
+    return axios.post(DELETE_CLAIM_URL, claims);
+  }
+
+  submitClaims(claims) {
+    return axios.post(SUBMIT_CLAIM_URL, claims);
   }
   
 }
-export default new ClaimServices()
+export default new ClaimServices();
 

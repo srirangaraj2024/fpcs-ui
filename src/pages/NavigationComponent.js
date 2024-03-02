@@ -19,7 +19,7 @@ export const NavigationComponent = () => {
       <li></li>
       <li className='left'><a href='#'><img src={require('../logo.svg').default} alt='logo'></img></a></li>
       {
-        auth.user !== null ?
+        auth.userName !== null ?
           <>
             <li className='center'> {auth.menu}</li>
             <li className='right'>

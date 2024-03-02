@@ -7,23 +7,18 @@ import {emptyClaim} from '../data/ClaimsData'
 import TableUtil from './TableUtils';
 import ClaimServices from '../services/ClaimServices';
 import { emptyClaims } from '../data/ClaimsData';
-import { useAuth } from './Auth';
 
-export default function TableComponentClaimApprove({ data, rowPerPage }) {
+export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
     const [date, setDate] = useState(new Date());
     const [page, setPage] = useState(1);
-    const [clientData, setClientData] = useState([]);
-    
-    const [claims, setClaims] = useState([]);
-    const { slice, range } = TableUtil(claims, page, rowPerPage);
+    const { slice, range } = TableUtil(data.claimsData, page, rowPerPage);
+    const [claims, setClaims] = useState(data.claimsData);
     const [selectedClaims, setSelectedClaims] = useState([]);
     const [isAllSeleted, setIsAllSeleted] = useState(false);
     const [selectedClaimRecords, setSelectedClaimRecords] = useState([...emptyClaims]);
-    //const clientList = data.clientData;
+    const clientList = data.clientData;
     const claimTypes = data.claimType;
     const action = data.actionType;
-    const auth = useAuth();
-    const [emp, setEmp] = useState(auth.user);
 
     const selectAll = () => {
         setSelectedClaims([]);
@@ -91,16 +86,9 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
 
     const fetchCalims = async () => {
         try {
-                 const cliamResponse = await ClaimServices.getApproverClaims(emp.employeeId);
-                 const data = await cliamResponse.json();
-                 setClaims(data);
-
-                 const clientresponse= await ClaimServices.getClientMaster();
-                 const clientData= await clientresponse.json();
-                 clientData[0]="select";
-                 setClientData(clientData);  
-                   
-            
+            const response = await ClaimServices.getClaims();
+            const data = await response.json();
+            setClaims(data);
         }
         catch (error) {
             console.log('Error fetching calims:', error);
@@ -180,7 +168,7 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                         <th className='tableHeader'>Employee Name</th>
                         <th className='tableHeader'>Amount Claimed</th>
                         <th className='tableHeader'>Billabe</th>
-                      
+                        <th className='tableHeader'>Non Billable</th>
                         <th className='tableHeader'>Advance</th>
                         <th className='tableHeader'>Balance</th>
                         <th className='tableHeader'>Action</th>
@@ -190,7 +178,7 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                 </thead>
                 <tbody>
                     {slice.map((claim) => (
-                        <tr className='tableRowItems' key={claim.claimId}>
+                        <tr className='tableRowItems' key={claim.id}>
                             <td className='tableCell'>
                                 <input
                                     type='checkbox'
@@ -200,8 +188,8 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                             </td>
                             <td className='tableCell'>
                                 <input
-                                    name='claimId'
-                                    value={claim.claimId}
+                                    name='id'
+                                    value={claim.id}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
@@ -211,7 +199,7 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                             <td className='tableCell'>
                                 <input
                                     name='dateOfCalim'
-                                    value={claim.dateOfClaim}
+                                    value={claim.dateOfCalim}
                                     onChange={onChangeInput}
                                     placeholder='enter Date'
                                     type='text'
@@ -220,8 +208,8 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                             </td>
                             <td className='tableCell'>
                                 <input
-                                    name='employeeId'
-                                    value={claim.employeeId}
+                                    name='name'
+                                    value={claim.name}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
@@ -231,7 +219,7 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                             <td className='tableCell'>
                                 <input
                                     name='amountClaimed'
-                                    value={claim.totalAmount}
+                                    value={claim.amountClaimed}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
@@ -250,15 +238,24 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                             </td>
                             <td className='tableCell'>
                                 <input
-                                    name='isBillable    '
-                                    value={claim.isBillable}
+                                    name='billable'
+                                    value={claim.billable}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
                                     disabled={isCalimSelected(claim) ? true : false}
                                 />
                             </td>
-                            
+                            <td className='tableCell'>
+                                <input
+                                    name='nonBillable'
+                                    value={claim.nonBillable}
+                                    onChange={onChangeInput}
+                                    placeholder=''
+                                    type='text'
+                                    disabled={isCalimSelected(claim) ? true : false}
+                                />
+                            </td>
                             <td className='tableCell'>
                                 <input
                                     name='advance'
@@ -272,7 +269,7 @@ export default function TableComponentClaimApprove({ data, rowPerPage }) {
                             <td className='tableCell'>
                                 <input
                                     name='balance'
-                                    value={claim.balanceAmount}
+                                    value={claim.balance}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
