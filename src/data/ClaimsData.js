@@ -2,6 +2,7 @@ export const data = [
     {
         id: '03',
         employeeId:'',
+        claimId:'',
         employeeName: 'Dan Doe',
     dateOfClaim: '15/02/2024',
     claimType: 'Transport',
@@ -27,6 +28,7 @@ export const data = [
     },
     {
         id: '02',
+        claimId:'',
         employeeId:'',
         employeeName: 'John Doe',
     dateOfClaim: '15/02/2024',
@@ -52,6 +54,7 @@ export const data = [
     action: ''
     },
     {id: '01',
+    claimId:'',
     employeeId:'',
     employeeName: 'John Doe',
     dateOfClaim: '15/02/2024',
@@ -80,6 +83,7 @@ export const data = [
 
 export const emptyClaims = [{
     id: '',
+    claimId:'',
     employeeId:'',
     employeeName: '',
     claimDate: '15/02/2024',

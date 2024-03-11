@@ -33,6 +33,8 @@ color: #f1e5e5;
     padding: 12px;
     font-size: 14px;
     color: grey;
+    text-align: justify;
+    text-wrap: wrap;
 }
 
 input {

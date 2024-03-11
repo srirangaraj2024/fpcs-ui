@@ -91,7 +91,7 @@ export const Claims = () => {
             status: ''
         }
     ];
-    const claimTypeList = ['','Boarding', 'Transport'];
+    const claimTypeList = ['Boarding','Transport', 'Conveyance', 'Food', 'Lodging', 'Laptop', 'Repairs', 'Stationary', 'Others'];
     const actionList = ['Approved', 'Reject', 'Hold'];
     const clientList = [
         {
@@ -122,11 +122,11 @@ export const Claims = () => {
                         <div style={{ margin: "15px" }}>
                             <TableComponentClaim data={claimsMaster} rowPerPage={10}></TableComponentClaim>
                         </div>
-                        <div style={{ margin: "15px", display: emp.empRole === 'Lead' ? 'inline' : 'none' }}>
+                        <div style={{ margin: "15px", display: emp.employeeRole === 'Team Lead' ? 'inline' : 'none' }}>
                             <h2> Manage Claim Lead Approval</h2>
                             <TableComponentClaimApprove data={claimsMaster} rowPerPage={10}></TableComponentClaimApprove>
                         </div>
-                        <div style={{ margin: "15px", display: emp.empRole === 'HR' ? 'inline' : 'none' }}>
+                        <div style={{ margin: "15px", display: emp.employeeRole === 'HR' ? 'inline' : 'none' }}>
                             <h2> Manage Claim HR Approval</h2>
                             <TableComponentClaimHrApprove data={claimsMaster} rowPerPage={10}></TableComponentClaimHrApprove>
                         </div>

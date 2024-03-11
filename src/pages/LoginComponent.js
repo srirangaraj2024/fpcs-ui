@@ -58,17 +58,14 @@ export const LoginComponent = () => {
                     <h2> LOGIN TO FPCS</h2>
                     <br></br>
                     <form onSubmit={handleSubmitEvent}>
-                    <a href='../images/logo192.png' target='_blank'
-       
-       >Download
-        
-       </a>
-                        <label>Employee ID</label>
-                        <input type="text" style={{width:"100%"}} onChange={(e) => setUserName(e.target.value)}
+                    
+                        <label><b>Login  ID</b></label>
+                        <input type="text" style={{width:"75%"}} onChange={(e) => setUserName(e.target.value)}
                             value={userName} placeholder='Login Id' /><br />
-                        <input type="password" style={{width:"100%"}}  onChange={(e) => setPassword(e.target.value)}
+                             <label><b>Password</b></label>
+                        <input type="password" style={{width:"75%"}}  onChange={(e) => setPassword(e.target.value)}
                             value={password} placeholder='password' /> <br />
-                        <input type="submit" value="Login"></input>
+                        <input style={{width:"25%"}} type="submit" value="Login"></input>
                     </form>
                 </div>
 

@@ -7,70 +7,70 @@ import {emptyClaim} from '../data/ClaimsData'
 import TableUtil from './TableUtils';
 import ClaimServices from '../services/ClaimServices';
 import { emptyClaims } from '../data/ClaimsData';
+import { useAuth } from './Auth';
 
 export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
     const [date, setDate] = useState(new Date());
-    const [page, setPage] = useState(1);
-    const { slice, range } = TableUtil(data.claimsData, page, rowPerPage);
-    const [claims, setClaims] = useState(data.claimsData);
-    const [selectedClaims, setSelectedClaims] = useState([]);
+    const [page, setPage] = useState(1);    
+    const [hrClaims, setHrClaims] = useState([]);
+    const { slice, range } = TableUtil(hrClaims, page, rowPerPage);
+    const [selectedHrClaims, setSelectedHrClaims] = useState([]);
     const [isAllSeleted, setIsAllSeleted] = useState(false);
-    const [selectedClaimRecords, setSelectedClaimRecords] = useState([...emptyClaims]);
+    const [selectedHrClaimRecords, setSelectedHrClaimRecords] = useState([]);
     const clientList = data.clientData;
     const claimTypes = data.claimType;
     const action = data.actionType;
 
-    const selectAll = () => {
-        setSelectedClaims([]);
+    const auth = useAuth();
+    const [emp, setEmp] = useState(auth.user);
+
+    const selectAllClaims = () => {
         if (!isAllSeleted) {
-            claims.array.forEach(element => {
-                setSelectedClaims(prevSeletedClaims => [...prevSeletedClaims, element.name]);
+            hrClaims.forEach(element => {
+                setSelectedHrClaims(prevSeletedHrClaims => [...prevSeletedHrClaims, element.claimId]);
+                setSelectedHrClaimRecords(prevSelectedHrClaimRecords => [...prevSelectedHrClaimRecords, element]);
             });
-            setSelectedClaimRecords([...claims]);
+           // setSelectedHrClaimRecords([...claims]);
         }
         else {
-            setSelectedClaimRecords([...emptyClaims]);
+            setSelectedHrClaims([])
+            setSelectedHrClaimRecords([]);
         }
         setIsAllSeleted(!isAllSeleted);
     }
 
     const handleClaimSelect = (claim) => {
-        if (selectedClaims.includes(claim.name)) {
-            setSelectedClaims(preSelectedClaims => preSelectedClaims.filter(name => name !== claim.name));
-            setSelectedClaimRecords(prevSelectedClaimRecords => prevSelectedClaimRecords.filter(
-                preClaim => preClaim.name !== claim.name));
+        if (selectedHrClaims.includes(claim.claimId)) {
+            setSelectedHrClaims(preSelectedHrClaims => preSelectedHrClaims.filter(id => id !== claim.claimId));
+            setSelectedHrClaimRecords(prevSelectedHrClaimRecords => prevSelectedHrClaimRecords.filter(
+                preClaim => preClaim.claimId !== claim.claimId));
         } else {
-            setSelectedClaims(preSelectedClaims => [...preSelectedClaims, claim.name]);
-            if (selectedClaimRecords.length === 1 && selectedClaimRecords[0].name === '') {
-                setSelectedClaimRecords([...claim]);
-            } else {
-                setSelectedClaimRecords(prevSelectedClaimRecords => [...prevSelectedClaimRecords, claim]);
-            }
+            setSelectedHrClaims(preSelectedHrClaims => [...preSelectedHrClaims, claim.claimId]);
+            setSelectedHrClaimRecords(prevSelectedHrClaimRecords => [...prevSelectedHrClaimRecords, claim]);
         }        
     }
 
     const isCalimSelected = (claim) => {
-        return selectedClaims.includes(claim.name);
+        return selectedHrClaims.includes(claim.claimId);
     }
 
     const isAllCalimsSelected = () => {
-        return selectedClaims.lengh = claims.length;
+        return selectedHrClaims.length = hrClaims.length;
     }
 
     const onChangeInput = (key, event) => {
         const { name, value } = event.target;
-        selectedClaimRecords(prevSelectedClaimRecords => prevSelectedClaimRecords.forEach(
-            preCalimRec => {
-                if (preCalimRec.id === key) {
-                    preCalimRec[name] = value;
-                }
-            }
-        ));
+
+        const tempRec = selectedHrClaimRecords[key];
+        tempRec[name] = value;
+        const updatedRec = [];
+        updatedRec.push(tempRec);
+        setSelectedHrClaimRecords(updatedRec);  
     }
 
     const onfileUpload = (key, event) => {
         const { name, value } = event.target;
-        selectedClaimRecords(prevSelectedClaimRecords => prevSelectedClaimRecords.forEach(
+        selectedHrClaimRecords(prevSelectedHrClaimRecords => prevSelectedHrClaimRecords.forEach(
             preCalimRec => {
                 if (preCalimRec.id === key) {
                     preCalimRec[name] = value;
@@ -86,72 +86,42 @@ export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
 
     const fetchCalims = async () => {
         try {
-            const response = await ClaimServices.getClaims();
+            const response = await ClaimServices.getApproverClaims(emp.employeeId);
             const data = await response.json();
-            setClaims(data);
+            setHrClaims(data);
+            //setSelectedHrClaimRecords([]);
+            //setSelectedHrClaims([]);
         }
         catch (error) {
             console.log('Error fetching calims:', error);
         }
     };
 
-    const saveClaimRecord = (claimRecord) => {
-        if (claimRecord.id !== '') {
-            updateClaimRecord(claimRecord).then(() => {
-                console.log('Claim updated successfully');
-
-            });
-
-        } else {
-            addClaimRecord(claimRecord).then(() => {
-                console.log('Claim Added successfully');
-            });
-        }
-
-    };
-    const addClaimRecord = async (claimRecord) => {
+    const saveClaimRecord = async () => {
         try {
-            const response = await ClaimServices.createClaim(claimRecord);
-            const data = await response.json;
-            setClaims([...claims, data]);
+            const claimRecords = selectedHrClaimRecords;
+            
+            ClaimServices.approveHrClaims(claimRecords).then(async (res) => {
+                if (res) {
+                   
+                    const newRes = await ClaimServices.getApproverClaims(emp.employeeId)
+                    const data = await newRes.json();
+                    console.log(data);
+                    setHrClaims(data);
+                    setSelectedHrClaimRecords([]);
+                    setSelectedHrClaims([]);
+                    alert("Claims are Settled successfully");
+                }
+            })
         } catch (error) {
             console.log("error adding claim:" + error);
         }
+    }; 
 
-    };
-
-    const updateClaimRecord = async (claimRecord) => {
-        try {
-            const response = await ClaimServices.updateClaim(claimRecord, claimRecord.id);
-            const updatedClaim = await response.json;
-            const updatedClaims = claims.map(claim => claim.id === updatedClaim.id ? updatedClaim : claim);
-            setClaims(updatedClaims);
-            setSelectedClaimRecords([...emptyClaims]);
-        } catch (error) {
-            console.log("error adding claim:" + error);
-        }
-    };
-
-    const deleteClaimRecord = async (claimId) => {
-        try {
-            await ClaimServices.deleteClaim(claimId);
-            const updatedClaims = claims.filter((claim) => claim.id !== claimId);
-            setClaims(updatedClaims);
-            setSelectedClaimRecords([...emptyClaims]);
-        } catch (error) {
-            console.log("error delteting claim:" + error);
-        }
-
-    }
-
-    const downLoadFiles = (claimId) =>{
-
-    }
-
-    return (
+       return (
         <div>
             <div style={{ display: "flex", float: "right" }}>
-                <input className='right' type='submit' value="Save" onClick={saveClaimRecord}></input>
+                <input className='center' type='submit' value="Paid" onClick={()=>saveClaimRecord()}></input>
                 {/* <input className='right' type='submit' value="Submit" onClick={updateClaimRecord}></input>  
       <input className='right' type='submit' value="Delete" onClick={deleteClaimRecord}></input>   */}
             </div>
@@ -161,36 +131,33 @@ export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
                 <thead className='tableRowHeader'>
                     <tr>
                         <th className='tableHeader'>
-                            <input type='checkbox' checked={isAllSeleted} onChange={selectAll} />
+                            <input type='checkbox' checked={isAllSeleted?true:false} onChange={() =>selectAllClaims()} />
                         </th>
                         <th className='tableHeader'>Claim No#</th>
-                        <th className='tableHeader'>Date of Claim</th>
+                        <th className='tableHeader'>Data of Approval</th>
                         <th className='tableHeader'>Employee Name</th>
                         <th className='tableHeader'>Amount Claimed</th>
-                        <th className='tableHeader'>Billabe</th>
-                        <th className='tableHeader'>Non Billable</th>
-                        <th className='tableHeader'>Advance</th>
-                        <th className='tableHeader'>Balance</th>
-                        <th className='tableHeader'>Action</th>
-                        <th className='tableHeader'>Comments</th>
-                        <th className='tableHeader'>Attachments</th>
+                        <th className='tableHeader'>Approved Amount</th>
+                        <th className='tableHeader'>Balance Amount</th>
+                 
+                
                     </tr>
                 </thead>
                 <tbody>
-                    {slice.map((claim) => (
-                        <tr className='tableRowItems' key={claim.id}>
+                    {slice.map((claim, index) => (
+                        <tr className='tableRowItems' key={claim.claimId}>
                             <td className='tableCell'>
                                 <input
                                     type='checkbox'
-                                    checked={isCalimSelected(claim)}
+                                    checked={isCalimSelected(claim)?true:false}
                                     onChange={() => handleClaimSelect(claim)}
                                 />
                             </td>
                             <td className='tableCell'>
                                 <input
-                                    name='id'
-                                    value={claim.id}
-                                    onChange={onChangeInput}
+                                    name='claimId'
+                                    value={claim.claimId}
+                                    onChange={(e) => onChangeInput(index, e)}
                                     placeholder=''
                                     type='text'
                                     disabled='true'
@@ -198,19 +165,9 @@ export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
                             </td>
                             <td className='tableCell'>
                                 <input
-                                    name='dateOfCalim'
-                                    value={claim.dateOfCalim}
-                                    onChange={onChangeInput}
-                                    placeholder='enter Date'
-                                    type='text'
-                                    disabled='true'
-                                />
-                            </td>
-                            <td className='tableCell'>
-                                <input
-                                    name='name'
-                                    value={claim.name}
-                                    onChange={onChangeInput}
+                                    name='claimDate'
+                                    value={claim.claimDate}
+                                    onChange={(e) => onChangeInput(index, e)}
                                     placeholder=''
                                     type='text'
                                     disabled='true'
@@ -218,8 +175,18 @@ export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
                             </td>
                             <td className='tableCell'>
                                 <input
-                                    name='amountClaimed'
-                                    value={claim.amountClaimed}
+                                    name='employeeId'
+                                    value={claim.employeeId}
+                                    onChange={(e) => onChangeInput(index, e)}
+                                    placeholder=''
+                                    type='text'
+                                    disabled='true'
+                                />
+                            </td>
+                            <td className='tableCell'>
+                                <input
+                                    name='totalAmount'
+                                    value={claim.totalAmount}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
@@ -230,78 +197,27 @@ export default function TableComponentClaimHrApprove({ data, rowPerPage }) {
                                 <input
                                     name='approvedAmount'
                                     value={claim.approvedAmount}
-                                    onChange={onChangeInput}
+                                    onChange={(e) => onChangeInput(index, e)}
                                     placeholder=''
                                     type='text'
-                                    disabled={isCalimSelected(claim) ? true : false}
+                                    disabled='true'
                                 />
                             </td>
+                           
                             <td className='tableCell'>
                                 <input
-                                    name='billable'
-                                    value={claim.billable}
-                                    onChange={onChangeInput}
-                                    placeholder=''
-                                    type='text'
-                                    disabled={isCalimSelected(claim) ? true : false}
-                                />
-                            </td>
-                            <td className='tableCell'>
-                                <input
-                                    name='nonBillable'
-                                    value={claim.nonBillable}
-                                    onChange={onChangeInput}
-                                    placeholder=''
-                                    type='text'
-                                    disabled={isCalimSelected(claim) ? true : false}
-                                />
-                            </td>
-                            <td className='tableCell'>
-                                <input
-                                    name='advance'
-                                    value={claim.advanceAmount}
+                                    name='balanceAmount'
+                                    value={claim.balanceAmount}
                                     onChange={onChangeInput}
                                     placeholder=''
                                     type='text'
                                     disabled='true'
                                 />
                             </td>
-                            <td className='tableCell'>
-                                <input
-                                    name='balance'
-                                    value={claim.balance}
-                                    onChange={onChangeInput}
-                                    placeholder=''
-                                    type='text'
-                                    disabled='true'
-                                />
-                            </td>
-                            <td className='tableCell'>
-                                <select
-                                    name='action'
-                                    value={claim.action}
-                                    onChange={onChangeInput}
-                                    disabled={isCalimSelected(claim) ? true : false}
-                                >
-                                    {
-                                        action.map(act =>
-                                            <option value={act}>{act}</option>
-                                        )}   ;
-                                </select>
-                            </td>
-                            <td className='tableCell'>
-                                <input
-                                    name='comments'
-                                    value={claim.commnents}
-                                    onChange={onChangeInput}
-                                    placeholder=''
-                                    type='text'
-                                    disabled='false'
-                                />
-                            </td>
-                            <td className='tableCell'>
-                                <input className='right' name='attachments' type='submit' value="Download" onClick={downLoadFiles}></input>
-                            </td>
+                            
+                            
+                           
+                            
                         </tr>
                     ))}
                 </tbody>
